@@ -72,3 +72,56 @@ TRUNCATE TABLE table_name;
 ### `LONGBLOB`: 42억까지 바이트를 저장할 수 있는 데이터 형식
 
 - 사진이나 동영상과 같은 것을 저장하고 싶다면 `BlOB`나 `LONGBLOB`을 사용
+
+## 5. 기타 조인
+
+### 1. 상호 조인 (CROSS JOIN)
+
+한쪽 테이블의 모든 행을 다른 쪽 테이블의 모든 행과 조인하는 기능이다. 결과 집합의 크기는 두 테이블의 행 개수를 곱한 값과 같으며, 이를 `카티션 곱(Cartesian Product)`이라고도 부른다.
+
+#### 특징
+- `ON` 절을 사용하지 않는다.
+- 결합된 데이터 자체가 특정 관계를 의미하지는 않으므로, 주로 대용량 테스트 데이터를 생성하는 목적으로 사용된다.
+
+#### 구문
+```sql
+SELECT *
+FROM table1
+CROSS JOIN table2;
+```
+
+**예시: `buy` 테이블과 `member` 테이블의 모든 가능한 조합을 조회**
+```sql
+SELECT * FROM buy CROSS JOIN member;
+```
+
+<br>
+
+### 2. 자체 조인 (SELF JOIN)
+
+하나의 테이블을 자기 자신과 조인하는 기능이다. 별도의 키워드 없이, 한 테이블에 서로 다른 `별칭(Alias)`을 부여하여 조인하는 방식으로 구현한다.
+
+주로 하나의 테이블 내에 계층적 관계(예: 직원과 관리자, 부모 카테고리와 자식 카테고리)가 존재할 때 사용된다.
+
+#### 구문
+```sql
+SELECT A.column, B.column
+FROM table_name A
+JOIN table_name B ON A.related_column = B.key_column;
+```
+
+**예시: `emp_table`에서 '경리부장'의 직속 상관 정보 조회**
+```sql
+SELECT
+    A.emp AS "직원",
+    B.emp AS "직속상관",
+    B.phone AS "직속상관연락처"
+FROM
+    emp_table A
+INNER JOIN
+    emp_table B ON A.manager = B.emp
+WHERE
+    A.emp = '경리부장';
+```
+> 위 예시에서 `A`는 직원을, `B`는 직속 상관을 나타내는 동일한 `emp_table`이다. `A.manager` (직원의 관리자 ID)와 `B.emp` (관리자의 직원 ID)를 연결하여 관계를 파악한다.
+
